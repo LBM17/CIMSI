@@ -25,7 +25,7 @@ const getChats = async (req, res) => {
   for (let chat of chats){
     const chatId2 = new mongoose.Types.ObjectId(String (chat.id));
 
-
+    //CAMBIO DE LUISA
     const lastMessage = await Message.findOne({ chatId: chatId2 })
     .populate('sender', 'username avatar');
     if(lastMessage){
@@ -78,8 +78,8 @@ const sendMessage = async (req, res) => {
 };
 
 // Obtener los mensajes de un chat específico
-const getMessages = async (req, res) => {
-  const { chatId } = req._id;
+/* const getMessages = async (req, res) => {
+  const { chatId } = req.params;
   
   try {
     // Obtener los mensajes de un chat específico, poblamos el sender
@@ -91,6 +91,31 @@ const getMessages = async (req, res) => {
     console.error("Error al obtener los mensajes:", error);
     res.status(500).json({ message: "Error al obtener los mensajes" });
   }
+}; */
+const getMessages = async (req, res) => {
+  const { chatId } = req.params; // Asegúrate de que chatId es obtenido de la URL
+  
+  try {
+    // Verificar si el chatId es válido
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return res.status(400).json({ message: "chatId no válido" });
+    }
+
+    // Obtener los mensajes del chat
+    const messages = await Message.find({ chatId })
+      .populate('sender', 'username avatar') // Poblar datos del remitente
+      .sort({ createdAt: 1 }); // Ordenar por fecha de creación (ascendente)
+
+    if (!messages || messages.length === 0) {
+      return res.status(404).json({ message: "No se encontraron mensajes para este chat" });
+    }
+
+    res.status(200).json(messages);
+  } catch (error) {
+    console.error("Error al obtener los mensajes:", error);
+    res.status(500).json({ message: "Error al obtener los mensajes" });
+  }
 };
 
-module.exports = { getChats, sendMessage};
+
+module.exports = { getChats, sendMessage, getMessages };

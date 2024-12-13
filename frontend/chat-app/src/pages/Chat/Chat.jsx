@@ -8,6 +8,7 @@ import { io } from 'socket.io-client';
 const Chat = () => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]); // Estado para mensajes
+  const [activeChatId, setActiveChatId] = useState(null);
 
   useEffect(() => {
     // Conectar al servidor de WebSocket
@@ -39,8 +40,10 @@ const Chat = () => {
   return (
     <div className="chat">
       <div className="chat-container">
-        <LeftSidebar />
-        <ChatBox messages={messages} onSendMessage={sendMessage} />
+        {/* Pasar setActiveChatId a LeftSidebar */}
+        <LeftSidebar setActiveChatId={setActiveChatId} />
+        {/* Pasar activeChatId a ChatBox */}
+        <ChatBox activeChatId={activeChatId} messages={messages} onSendMessage={sendMessage} />
         <RightSidebar />
       </div>
     </div>

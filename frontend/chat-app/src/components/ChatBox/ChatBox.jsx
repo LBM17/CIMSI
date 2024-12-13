@@ -42,7 +42,7 @@ const ChatBox = ({ activeChatId }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await api.get("/api/Messages", {
-        chatId: activeChatId,
+        activeChatId: activeChatId,
         content: newMessage,
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -73,7 +73,7 @@ const ChatBox = ({ activeChatId }) => {
     <div className="chat-box">
       <div className="chat-user">
         <img src={assets.profile_img} alt="Chat User" />
-        <p>Chat {chatId}</p>
+        <p>Chat {activeChatId}</p>
       </div>
       <div className="chat-msg">
         {messages.map((message) => (

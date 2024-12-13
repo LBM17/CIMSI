@@ -13,15 +13,13 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const App = () => {
-  return (
+  /* return (
     <Suspense fallback={<div>Cargando...</div>}>
       <Routes>
-        {/* Ruta pública */}
         <Route path="/" element={<Login />} />
 
-        {/* Rutas protegidas */}
         <Route
-          path="/chat"
+          path=":chatId"
           element={
             <ProtectedRoute>
               <Chat />
@@ -38,6 +36,14 @@ const App = () => {
         />
       </Routes>
     </Suspense>
+  ); */
+  return (
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/chat" element={<Chat />} />
+      <Route path="/chat/:chatId" element={<Chat />} /> {/* Ruta con chatId */}
+      <Route path="/profile" element={<ProfileUpdate />} />
+    </Routes>
   );
 };
 

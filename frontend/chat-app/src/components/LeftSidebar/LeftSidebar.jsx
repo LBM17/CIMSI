@@ -4,7 +4,7 @@ import assets from "../../assets/assets";
 import { useNavigate } from "react-router-dom";
 import api from '../../api';
 
-const LeftSidebar = () => {
+const LeftSidebar = ({ setActiveChatId }) => { // Recibir setActiveChatId como prop
   const [search, setSearch] = useState("");
   const [chats, setChats] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -102,10 +102,13 @@ const LeftSidebar = () => {
         {filteredChats.length > 0 ? (
           filteredChats.map((chat) => (
             <div
-              key={chat._id}
-              className="friends"
-              onClick={() => navigate(`/chat/${chat._id}`)}
-            >
+                key={chat._id}
+                className="friends"
+                onClick={() => {
+                  setActiveChatId(chat._id); // Actualizar el chat activo
+                  navigate(`/chat/${chat._id}`);
+                }}
+              >
               <img
                 src={
                   chat.isGroup
