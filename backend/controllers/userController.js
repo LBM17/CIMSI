@@ -79,13 +79,8 @@ const loginUser = async (req, res) => {
 // NUEVO LUISA - Obtener los contactos del usuario
 const getUserContacts = async (req, res) => {
   try {
-    //console.log("Hola desde userController 1 quiero encontrar a... " + req.user.username + " con id: " + req.user.id);
-    //console.log("y contactos... " + req.user.contacts);
-
     const userId = new mongoose.Types.ObjectId(String (req.user.id));
     const user = await User.findById(userId).populate('contacts'); // Añadido populate
-
-    //console.log("Hola desde userController 2 los contactos de " + req.user.username + " con ID " + userId + " son: ", user);
 
     if (!user) {
       return res.status(404).json({ error: 'Usuario no encontrado' });

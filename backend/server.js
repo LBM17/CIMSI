@@ -38,6 +38,7 @@ connectDB().then(() => {
     credentials: true // Si necesitas enviar cookies o encabezados de autorización
   }));
   app.use(express.json());
+
   // Rutas
   app.use('/api/Users', userRoutes);
   app.use('/api/Chats', chatRoutes);

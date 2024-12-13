@@ -1,17 +1,41 @@
-const mongoose = require('../config/db');
-const Chat = require('../models/chatModel');  // Asegúrate de tener el modelo Chat configurado correctamente
-const Message = require('../models/messageModel');  // Asegúrate de importar el modelo Message
+const { mongoose } = require('../config/db');
+const Chat = require('../models/chatModel');
+const Message = require('../models/messageModel');  
+
+// Función auxiliar para asegurar que la conexión esté lista
+async function ensureDBConnected() {
+  if (mongoose.connection.readyState !== 1) {
+    console.log('Esperando conexión a la base de datos...');
+    await new Promise((resolve) => {
+      mongoose.connection.once('connected', resolve); // Espera el evento 'connected'
+    });
+  }
+}
 
 // Obtener los chats de un usuario
 const getChats = async (req, res) => {
   try {
-    // Obtener los chats donde el usuario es miembro, poblamos los mensajes de cada chat
-    const chats = await Chat.find({ members: req.user.id })
-      .populate('messages')  // Poblamos los mensajes del chat
-      .populate('members', 'username avatar')  // Poblamos los miembros del chat (solo campos relevantes)
-      .sort({ createdAt: -1 });  // Ordenamos los chats por fecha de creación (más reciente primero)
+  await ensureDBConnected(); // Asegurar conexión
+  // Obtener los chats donde el usuario es miembro, poblamos los mensajes de cada chat
+  const chats = await Chat.find({ members: req.user.id })
+  .populate('messages')                                                           // Poblamos los mensajes del chat
+  .sort({ createdAt: -1 })
+  ;   
 
-    res.status(200).json(chats);
+  for (let chat of chats){
+    const chatId2 = new mongoose.Types.ObjectId(String (chat.id));
+
+
+    const lastMessage = await Message.findOne({ chatId: chatId2 })
+    .populate('sender', 'username avatar');
+    if(lastMessage){
+      chat.lastMessage = lastMessage.content;
+      chat.lastMessageSender = lastMessage.sender.username;
+    }else{
+      chat.lastMessage = null;
+      chat.lastMessageSender = null;}
+  }
+  res.status(200).json(chats);
   } catch (error) {
     console.error("Error al obtener los chats:", error);
     res.status(500).json({ message: "Error al obtener los chats" });
@@ -38,8 +62,13 @@ const sendMessage = async (req, res) => {
 
     // Actualizamos el chat agregando el nuevo mensaje
     const chat = await Chat.findById(chatId);
+    if(!chat){
+      return res.status(404).json({ message: "Chat no encontrado"}); 
+    }
     chat.messages.push(message._id);
     await chat.save();
+    console.log("Mensaje guardado: ", message); 
+    console.log("Chat guardado: ", chat); 
 
     res.status(201).json(message);
   } catch (error) {
@@ -50,14 +79,13 @@ const sendMessage = async (req, res) => {
 
 // Obtener los mensajes de un chat específico
 const getMessages = async (req, res) => {
-  const { chatId } = req.params;
+  const { chatId } = req._id;
   
   try {
     // Obtener los mensajes de un chat específico, poblamos el sender
     const messages = await Message.find({ chatId })
       .populate('sender', 'username avatar')  // Poblamos los datos del usuario que envió el mensaje
       .sort({ createdAt: 1 });  // Ordenamos los mensajes de más antiguo a más reciente
-
     res.status(200).json(messages);
   } catch (error) {
     console.error("Error al obtener los mensajes:", error);
@@ -65,4 +93,4 @@ const getMessages = async (req, res) => {
   }
 };
 
-module.exports = { getChats, sendMessage, getMessages };
+module.exports = { getChats, sendMessage};

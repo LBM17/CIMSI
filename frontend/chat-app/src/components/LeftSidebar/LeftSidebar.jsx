@@ -129,10 +129,13 @@ const LeftSidebar = () => {
                     : "Unknown"}
                 </p>
                 <span> 
-                  {chat.lastMessage 
-                  ? `${chat.lastMessage.sender 
-                  ? `${chat.lastMessage.sender}: ` : ""}
-                  ${chat.lastMessage.content}` : "Sin mensajes"} </span>
+                  {!chat.lastMessage
+                    ? "Sin mensajes" 
+                    : !chat.lastMessageSender 
+                    ? chat.lastMessage 
+                    : `${chat.lastMessageSender}: ${chat.lastMessage}`}
+
+                </span>
               </div>
             </div>
           ))
